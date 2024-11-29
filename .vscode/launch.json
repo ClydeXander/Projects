@@ -6,7 +6,7 @@
     "configurations": [
         {
             "cwd": "${workspaceFolder}",
-            "executable": "./bin/executable.elf",
+            "executable": "./build/Sending_Message_via_UART.elf",
             "name": "Debug with ST-Link",
             "request": "launch",
             "type": "cortex-debug",
