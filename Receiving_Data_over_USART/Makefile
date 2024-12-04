@@ -33,7 +33,7 @@ CFLAGS += -I $(STM_COMMON_CMSIS)/DeviceSupport/ST/STM32F10x
 CFLAGS += -I $(STM_COMMON_CMSIS)/CoreSupport
 CFLAGS += -I $(STM_COMMON)/STM32F10x_StdPeriph_Driver/inc
 CFLAGS += -Wall -Wextra -Werror
-CFLAGS += -D STM32F10X_MD -D USE_STDPERIPH_DRIVER
+CFLAGS += -D USE_STDPERIPH_DRIVER
 #Source File
 SRCFL += $(STM_COMMON_CMSIS)/DeviceSupport/ST/STM32F10x/startup/TrueSTUDIO/startup_stm32f10x_md.s
 
