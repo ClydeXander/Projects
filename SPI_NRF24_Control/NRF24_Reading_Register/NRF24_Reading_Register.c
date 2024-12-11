@@ -8,11 +8,14 @@ void GPIO_SETUP(void);
 void UART_SETUP(void);
 void SPI_SETUP(void);
 void Delay(uint32_t ntime);
+uint8_t NRF24_Command_Status(uint8_t command);
+uint8_t NRF24_Dummy_Register(void);
 
 volatile uint32_t TimerDelay;
 volatile uint8_t buffer ;
-volatile uint16_t data_spi;
-volatile uint8_t data_spi_1;
+volatile uint8_t status;
+volatile uint8_t Register;
+volatile uint8_t data_spi;
 
 int main (void){
     
@@ -32,11 +35,7 @@ int main (void){
     }
 }
 
-void SysTick_Handler(void){
-    if(TimerDelay != 0){
-        TimerDelay--;
-    }
-}
+
 
 void USART2_IRQHandler(void){
     if(USART_GetITStatus(USART2,USART_IT_RXNE)){
@@ -44,19 +43,38 @@ void USART2_IRQHandler(void){
         while(!(USART_GetFlagStatus(USART2,USART_FLAG_RXNE)));
         buffer = USART_ReceiveData(USART2);
 
-        while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
         GPIO_ResetBits(GPIOA,GPIO_Pin_4);
-        SPI_I2S_SendData(SPI1, buffer);
-        while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-        data_spi = SPI_I2S_ReceiveData(SPI1);
-        SPI_I2S_SendData(SPI1, 0x00);
-        while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-        data_spi_1 = SPI_I2S_ReceiveData(SPI1);
+
+        NRF24_Command_Status(buffer);
+        data_spi = NRF24_Dummy_Register();
+
         while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
         GPIO_SetBits(GPIOA,GPIO_Pin_4);
 
         while(!(USART_GetFlagStatus(USART2,USART_FLAG_TXE)));
-        USART_SendData(USART2,data_spi_1);
+        USART_SendData(USART2,data_spi);
+    }
+}
+
+uint8_t NRF24_Command_Status(uint8_t command){
+
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1, command);
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
+    return status = SPI_I2S_ReceiveData(SPI1);
+}
+
+uint8_t NRF24_Dummy_Register(void){
+
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1, 0x00);
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
+    return Register = SPI_I2S_ReceiveData(SPI1);
+}
+
+void SysTick_Handler(void){
+    if(TimerDelay != 0){
+        TimerDelay--;
     }
 }
 
