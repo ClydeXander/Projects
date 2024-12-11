@@ -7,5 +7,7 @@
         "stm32f10x_spi.h": "c",
         "stm32f10x_tim.h": "c",
         "stm32f10x.h": "c"
-    }
+    },
+    "cortex-debug.openocdPath": "/usr/bin/openocd",
+    "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch"
 }

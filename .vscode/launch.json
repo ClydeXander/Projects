@@ -5,14 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "cwd": "${workspaceFolder}",
-            "executable": "./build/Sending_Message_via_UART.elf",
-            "name": "Debug with ST-Link",
+            "cwd": "${workspaceRoot}",
+            "executable": "./SPI_NRF24_Control/NRF24_Reading_Register/build/elf/NRF24_Reading_Register.elf",
+            "name": "Debug with OpenOCD",
             "request": "launch",
             "type": "cortex-debug",
+            "servertype": "openocd",
+            "configFiles": [
+                "/usr/share/openocd/scripts/interface/stlink.cfg",
+                "/usr/share/openocd/scripts/target/stm32f1x.cfg"
+            ],
+            "searchDir": [],
             "runToEntryPoint": "main",
-            "showDevDebugOutput": "none",
-            "servertype": "stlink"
+            "showDevDebugOutput": "none"
         }
     ]
 }
