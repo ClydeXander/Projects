@@ -42,7 +42,7 @@ SRCFL += $(STM_COMMON_CMSIS)/DeviceSupport/ST/STM32F10x/startup/TrueSTUDIO/start
 #System File
 SRCFL += $(STM_COMMON_CMSIS)/DeviceSupport/ST/STM32F10x/system_stm32f10x.c
 
-vpath %.c $(STM_COMMON)/STM32F10x_StdPeriph_Driver/src \
+vpath %.c $(STM_COMMON)/STM32F10x_StdPeriph_Driver/src 
 
 .PHONY: proj
 
