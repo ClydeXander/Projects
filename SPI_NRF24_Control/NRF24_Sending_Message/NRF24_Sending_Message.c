@@ -24,86 +24,86 @@
 #define NOP                   ((uint8_t)0xFF)   
 
 /*NRF_Register Addresses*/
-//#define CONFIG         ((uint8_t)0x00)
-//#define EN_AA          ((uint8_t)0x01)
-//#define EN_RXADDR      ((uint8_t)0x02)
-//#define SETUP_AW       ((uint8_t)0x03)
-//#define SETUP_RETR     ((uint8_t)0x04)
-//#define RF_CH          ((uint8_t)0x05)
-//#define RF_SETUP       ((uint8_t)0x06)
-//#define STATUS         ((uint8_t)0x07)
-//#define OBSERVE_TX     ((uint8_t)0x08)
-//#define RPD            ((uint8_t)0x09)
-//#define RX_ADDR_P0     ((uint8_t)0x0A)
-//#define RX_ADDR_P1     ((uint8_t)0x0B)
-//#define RX_ADDR_P2     ((uint8_t)0x0C)
-//#define RX_ADDR_P3     ((uint8_t)0x0D)
-//#define RX_ADDR_P4     ((uint8_t)0x0E)
-//#define RX_ADDR_P5     ((uint8_t)0x0F)
-//#define TX_ADDR        ((uint8_t)0x10)
-//#define RX_PW_P0       ((uint8_t)0x11)
-//#define RX_PW_P1       ((uint8_t)0x12)
-//#define RX_PW_P2       ((uint8_t)0x13)
-//#define RX_PW_P3       ((uint8_t)0x14)
-//#define RX_PW_P4       ((uint8_t)0x15)
-//#define RX_PW_P5       ((uint8_t)0x16)
-//#define FIFO_STATUS    ((uint8_t)0x17)
-//#define DYNPD          ((uint8_t)0x1C)
-//#define FEATURE        ((uint8_t)0x1D)
+#define CONFIG         ((uint8_t)0x00)
+#define EN_AA          ((uint8_t)0x01)
+#define EN_RXADDR      ((uint8_t)0x02)
+#define SETUP_AW       ((uint8_t)0x03)
+#define SETUP_RETR     ((uint8_t)0x04)
+#define RF_CH          ((uint8_t)0x05)
+#define RF_SETUP       ((uint8_t)0x06)
+#define STATUS         ((uint8_t)0x07)
+#define OBSERVE_TX     ((uint8_t)0x08)
+#define RPD            ((uint8_t)0x09)
+#define RX_ADDR_P0     ((uint8_t)0x0A)
+#define RX_ADDR_P1     ((uint8_t)0x0B)
+#define RX_ADDR_P2     ((uint8_t)0x0C)
+#define RX_ADDR_P3     ((uint8_t)0x0D)
+#define RX_ADDR_P4     ((uint8_t)0x0E)
+#define RX_ADDR_P5     ((uint8_t)0x0F)
+#define TX_ADDR        ((uint8_t)0x10)
+#define RX_PW_P0       ((uint8_t)0x11)
+#define RX_PW_P1       ((uint8_t)0x12)
+#define RX_PW_P2       ((uint8_t)0x13)
+#define RX_PW_P3       ((uint8_t)0x14)
+#define RX_PW_P4       ((uint8_t)0x15)
+#define RX_PW_P5       ((uint8_t)0x16)
+#define FIFO_STATUS    ((uint8_t)0x17)
+#define DYNPD          ((uint8_t)0x1C)
+#define FEATURE        ((uint8_t)0x1D)
 
-#define R_CONFIG         ((uint8_t)0x00)
-#define R_EN_AA          ((uint8_t)0x01)
-#define R_EN_RXADDR      ((uint8_t)0x02)
-#define R_SETUP_AW       ((uint8_t)0x03)
-#define R_SETUP_RETR     ((uint8_t)0x04)
-#define R_RF_CH          ((uint8_t)0x05)
-#define R_RF_SETUP       ((uint8_t)0x06)
-#define R_STATUS         ((uint8_t)0x07)
-#define R_OBSERVE_TX     ((uint8_t)0x08)
-#define R_RPD            ((uint8_t)0x09)
-#define R_RX_ADDR_P0     ((uint8_t)0x0A)
-#define R_RX_ADDR_P1     ((uint8_t)0x0B)
-#define R_RX_ADDR_P2     ((uint8_t)0x0C)
-#define R_RX_ADDR_P3     ((uint8_t)0x0D)
-#define R_RX_ADDR_P4     ((uint8_t)0x0E)
-#define R_RX_ADDR_P5     ((uint8_t)0x0F)
-#define R_TX_ADDR        ((uint8_t)0x10)
-#define R_RX_PW_P0       ((uint8_t)0x11)
-#define R_RX_PW_P1       ((uint8_t)0x12)
-#define R_RX_PW_P2       ((uint8_t)0x13)
-#define R_RX_PW_P3       ((uint8_t)0x14)
-#define R_RX_PW_P4       ((uint8_t)0x15)
-#define R_RX_PW_P5       ((uint8_t)0x16)
-#define R_FIFO_STATUS    ((uint8_t)0x17)
-#define R_DYNPD          ((uint8_t)0x1C)
-#define R_FEATURE        ((uint8_t)0x1D)
+//#define R_CONFIG         ((uint8_t)0x00)
+//#define R_EN_AA          ((uint8_t)0x01)
+//#define R_EN_RXADDR      ((uint8_t)0x02)
+//#define R_SETUP_AW       ((uint8_t)0x03)
+//#define R_SETUP_RETR     ((uint8_t)0x04)
+//#define R_RF_CH          ((uint8_t)0x05)
+//#define R_RF_SETUP       ((uint8_t)0x06)
+//#define R_STATUS         ((uint8_t)0x07)
+//#define R_OBSERVE_TX     ((uint8_t)0x08)
+//#define R_RPD            ((uint8_t)0x09)
+//#define R_RX_ADDR_P0     ((uint8_t)0x0A)
+//#define R_RX_ADDR_P1     ((uint8_t)0x0B)
+//#define R_RX_ADDR_P2     ((uint8_t)0x0C)
+//#define R_RX_ADDR_P3     ((uint8_t)0x0D)
+//#define R_RX_ADDR_P4     ((uint8_t)0x0E)
+//#define R_RX_ADDR_P5     ((uint8_t)0x0F)
+//#define R_TX_ADDR        ((uint8_t)0x10)
+//#define R_RX_PW_P0       ((uint8_t)0x11)
+//#define R_RX_PW_P1       ((uint8_t)0x12)
+//#define R_RX_PW_P2       ((uint8_t)0x13)
+//#define R_RX_PW_P3       ((uint8_t)0x14)
+//#define R_RX_PW_P4       ((uint8_t)0x15)
+//#define R_RX_PW_P5       ((uint8_t)0x16)
+//#define R_FIFO_STATUS    ((uint8_t)0x17)
+//#define R_DYNPD          ((uint8_t)0x1C)
+//#define R_FEATURE        ((uint8_t)0x1D)
 
-#define W_CONFIG         ((uint8_t)0x20)
-#define W_EN_AA          ((uint8_t)0x21)
-#define W_EN_RXADDR      ((uint8_t)0x22)
-#define W_SETUP_AW       ((uint8_t)0x23)
-#define W_SETUP_RETR     ((uint8_t)0x24)
-#define W_RF_CH          ((uint8_t)0x25)
-#define W_RF_SETUP       ((uint8_t)0x26)
-#define W_STATUS         ((uint8_t)0x27)
-#define W_OBSERVE_TX     ((uint8_t)0x28)
-#define W_RPD            ((uint8_t)0x29)
-#define W_RX_ADDR_P0     ((uint8_t)0x2A)
-#define W_RX_ADDR_P1     ((uint8_t)0x2B)
-#define W_RX_ADDR_P2     ((uint8_t)0x2C)
-#define W_RX_ADDR_P3     ((uint8_t)0x2D)
-#define W_RX_ADDR_P4     ((uint8_t)0x2E)
-#define W_RX_ADDR_P5     ((uint8_t)0x2F)
-#define W_TX_ADDR        ((uint8_t)0x30)
-#define W_RX_PW_P0       ((uint8_t)0x31)
-#define W_RX_PW_P1       ((uint8_t)0x32)
-#define W_RX_PW_P2       ((uint8_t)0x33)
-#define W_RX_PW_P3       ((uint8_t)0x34)
-#define W_RX_PW_P4       ((uint8_t)0x35)
-#define W_RX_PW_P5       ((uint8_t)0x36)
-#define W_FIFO_STATUS    ((uint8_t)0x37)
-#define W_DYNPD          ((uint8_t)0x3C)
-#define W_FEATURE        ((uint8_t)0x3D)
+//#define W_CONFIG         ((uint8_t)0x20)
+//#define W_EN_AA          ((uint8_t)0x21)
+//#define W_EN_RXADDR      ((uint8_t)0x22)
+//#define W_SETUP_AW       ((uint8_t)0x23)
+//#define W_SETUP_RETR     ((uint8_t)0x24)
+//#define W_RF_CH          ((uint8_t)0x25)
+//#define W_RF_SETUP       ((uint8_t)0x26)
+//#define W_STATUS         ((uint8_t)0x27)
+//#define W_OBSERVE_TX     ((uint8_t)0x28)
+//#define W_RPD            ((uint8_t)0x29)
+//#define W_RX_ADDR_P0     ((uint8_t)0x2A)
+//#define W_RX_ADDR_P1     ((uint8_t)0x2B)
+//#define W_RX_ADDR_P2     ((uint8_t)0x2C)
+//#define W_RX_ADDR_P3     ((uint8_t)0x2D)
+//#define W_RX_ADDR_P4     ((uint8_t)0x2E)
+//#define W_RX_ADDR_P5     ((uint8_t)0x2F)
+//#define W_TX_ADDR        ((uint8_t)0x30)
+//#define W_RX_PW_P0       ((uint8_t)0x31)
+//#define W_RX_PW_P1       ((uint8_t)0x32)
+//#define W_RX_PW_P2       ((uint8_t)0x33)
+//#define W_RX_PW_P3       ((uint8_t)0x34)
+//#define W_RX_PW_P4       ((uint8_t)0x35)
+//#define W_RX_PW_P5       ((uint8_t)0x36)
+//#define W_FIFO_STATUS    ((uint8_t)0x37)
+//#define W_DYNPD          ((uint8_t)0x3C)
+//#define W_FEATURE        ((uint8_t)0x3D)
 
 /*Registers*/
 #define MASK_RX_DR    ((uint8_t)0x40U)
@@ -414,6 +414,11 @@
 #define EN_ACK_PAY       ((uint8_t)0x02U)
 #define EN_DYN_ACK       ((uint8_t)0x01U)
 
+typedef enum {
+    NRF24_ADD = 0,
+    NRF24_REMOVE = !NRF24_ADD
+}Add_or_Remove;
+
 volatile uint32_t ntime = 0;
 volatile uint32_t TimerDelay = 0;
 
@@ -441,16 +446,12 @@ void DelayMS(uint16_t ntime);
 
 void NRF_Send_Command(uint8_t NRF_Command);
 uint8_t NRF_Read_Status();
-void NRF_Write_8Bit_Register(uint8_t NRF_Register, uint8_t Register_Data);
+void NRF_Write_8Bit_Register(uint8_t NRF_Register, uint8_t Register_Data, Add_or_Remove NRF24_Task);
 void NRF_Write_40Bit_Register(uint8_t NRF_Register, uint8_t *Register_Data);
 void NRF_Read_8Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data);
 void NRF_Read_40Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data);
 
-void NRF_Write_Payload(uint8_t *NRF_Payload);
-
-
-//void NRF_Setup_PTX();
-//void NRF_Setup_PRX();
+void NRF_WriteSend_Payload(uint8_t *NRF_Payload, uint8_t len);
 
 
 int main(void){
@@ -461,14 +462,18 @@ int main(void){
     USART_SETUP();
     SysTick_Config(720000);
 
-    //uint8_t testing_some = 0;
+    uint8_t testing_some = 0;
     //uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
-    uint8_t testing_array01[5] = {0};
+    //uint8_t testing_array01[5] = {0};
 
     DelayMS(500);
-    NRF_Write_8Bit_Register(W_CONFIG, PWR_UP);
-    
-    
+    NRF_Write_8Bit_Register(CONFIG, PWR_UP, NRF24_ADD);
+    DelayMS(10);
+    NRF_Read_8Bit_Register(CONFIG,&testing_some);
+    DelayMS(10);
+    NRF_Write_8Bit_Register(CONFIG, PWR_UP, NRF24_REMOVE);
+    DelayMS(10);
+    NRF_Read_8Bit_Register(CONFIG,&testing_some);
 
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
@@ -488,20 +493,35 @@ void NRF_Send_Command(uint8_t NRF_Command){
 uint8_t NRF_Read_Status(){
 
     //while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-    uint8_t NRF_Status = SPI_I2S_ReceiveData(SPI1);
+    uint8_t NRF_Status = 0;
+    NRF_Status = SPI_I2S_ReceiveData(SPI1);
     return NRF_Status;
 
 }
 
-void NRF_Write_8Bit_Register(uint8_t NRF_Register, uint8_t Register_Data){
+void NRF_Write_8Bit_Register(uint8_t NRF_Register, uint8_t Register_Data, Add_or_Remove NRF24_Task){
 
+    uint8_t buffer01 = 0;
+    uint8_t buffer02 = Register_Data;
+
+    if (NRF24_Task == NRF24_ADD){
+
+        NRF_Read_8Bit_Register(NRF_Register, &buffer01);
+        buffer01 = buffer01 | buffer02;
+    }
+    if(NRF24_Task == NRF24_REMOVE){
+        NRF_Read_8Bit_Register(NRF_Register, &buffer01);
+        buffer01 = buffer01 &~ buffer02;
+    }
+
+    DelayMS(1);
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
-    NRF_Send_Command(NRF_Register);
+    NRF_Send_Command(0x20 | NRF_Register);
     (void)NRF_Read_Status();
 
-    //while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
-    SPI_I2S_SendData(SPI1,Register_Data);
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1,buffer01);
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
@@ -512,7 +532,7 @@ void NRF_Write_40Bit_Register(uint8_t NRF_Register, uint8_t *Register_Data){
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
-    NRF_Send_Command(NRF_Register);
+    NRF_Send_Command(0x20 | NRF_Register);
 
     (void)NRF_Read_Status();
 
@@ -534,11 +554,12 @@ void NRF_Read_8Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data){
 
     (void)NRF_Read_Status();
 
-    //while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1,0x00);
 
-    //while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-    *Read_Register_Data = SPI_I2S_ReceiveData(SPI1);
+    DelayMS(1);
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
+    *Read_Register_Data = SPI1->DR;
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
@@ -565,6 +586,16 @@ void NRF_Read_40Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data){
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
 }
 
+void NRF_WriteSend_Payload(uint8_t *NRF_Payload, uint8_t len){
+
+    NRF_Send_Command(W_TX_PAYLOAD);
+
+    for(int i = 0 ; i <= (len - 1) ; i --){
+        while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
+        SPI_I2S_SendData(SPI1, NRF_Payload[i]);
+    }
+
+}
 
 
 //void USART2_IRQHandler(void){

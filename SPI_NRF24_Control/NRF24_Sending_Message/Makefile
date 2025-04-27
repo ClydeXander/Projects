@@ -13,11 +13,13 @@ BUILD_DIR = build
 ELF_DIR = $(BUILD_DIR)/elf
 HEX_DIR = $(BUILD_DIR)/hex
 BIN_DIR = $(BUILD_DIR)/bin
+ASSEMBLY_DIR = $(BUILD_DIR)/assembly
 
 #Build  Files
 ELF_FILE = $(ELF_DIR)/$(PROJ_NAME).elf
 HEX_FILE = $(HEX_DIR)/$(PROJ_NAME).hex
 BIN_FILE = $(BIN_DIR)/$(PROJ_NAME).bin
+ASSEMBLY_FILE = $(ASSEMBLY_DIR)/$(PROJ_NAME).s
 
 #Put your STM32 library code directory here
 STM_COMMON = /home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries
@@ -46,12 +48,12 @@ vpath %.c $(STM_COMMON)/STM32F10x_StdPeriph_Driver/src
 
 .PHONY: proj
 
-$(BUILD_DIR) $(ELF_DIR) $(HEX_DIR) $(BIN_DIR):
+$(BUILD_DIR) $(ELF_DIR) $(HEX_DIR) $(BIN_DIR) $(ASSEMBLY_DIR):
 	@mkdir -p $@
 
 all: proj
 
-proj: $(ELF_FILE) $(HEX_FILE) $(BIN_FILE)
+proj: $(ELF_FILE) $(HEX_FILE) $(BIN_FILE) $(ASSEMBLY_FILE)
 
 # Generate .elf file in ELF_DIR
 $(ELF_FILE): $(SRCFL) | $(ELF_DIR)
@@ -64,6 +66,9 @@ $(HEX_FILE): $(ELF_FILE) | $(HEX_DIR)
 # Generate .bin file in BIN_DIR using patsubst
 $(BIN_FILE): $(ELF_FILE) | $(BIN_DIR)
 	$(OBJCOPY) -O binary $< $@
+
+$(ASSEMBLY_FILE): $(PROJ_NAME).c | $(ASSEMBLY_DIR)
+	$(CC) $(CFLAGS) -S $^ -o $@
 
 clean:
 	rm -rf $(BUILD_DIR)
