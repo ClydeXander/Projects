@@ -414,11 +414,6 @@
 #define EN_ACK_PAY       ((uint8_t)0x02U)
 #define EN_DYN_ACK       ((uint8_t)0x01U)
 
-typedef enum {
-    NRF24_ADD = 0,
-    NRF24_REMOVE = !NRF24_ADD
-}Add_or_Remove;
-
 volatile uint32_t ntime = 0;
 volatile uint32_t TimerDelay = 0;
 
@@ -426,7 +421,7 @@ volatile uint32_t TimerDelay = 0;
 ********RX_Data_Pipes***********
 ********************************/
 
-//static uint8_t RX_ADDR_0_DataPipe_Value[5] = {0xE7U,0xE7U,0xE7U,0xE7U,0xE7U};
+static uint8_t RX_ADDR_0_DataPipe_Value[5] = {0xE7U,0xE7U,0xE7U,0xE7U,0xE7U};
 //static uint8_t RX_ADDR_1_DataPipe_Value[5] = {0xC2U,0xC2U,0xC2U,0xC2U,0xC2U};
 //static uint8_t RX_ADDR_2_Value = 0x0CU;
 //static uint8_t RX_ADDR_3_Value = 0x0DU;
@@ -444,15 +439,12 @@ void SPI_SETUP(void);
 void USART_SETUP(void);
 void DelayMS(uint16_t ntime);
 
-void NRF_Send_Command(uint8_t NRF_Command);
-uint8_t NRF_Read_Status();
-void NRF_Write_8Bit_Register(uint8_t NRF_Register, uint8_t Register_Data, Add_or_Remove NRF24_Task);
+void NRF24_Read_Status(uint8_t *Data_Store);
+void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit, uint8_t NRF24_Set_Reset);
+void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store);
 void NRF_Write_40Bit_Register(uint8_t NRF_Register, uint8_t *Register_Data);
-void NRF_Read_8Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data);
 void NRF_Read_40Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data);
-
-void NRF_WriteSend_Payload(uint8_t *NRF_Payload, uint8_t len);
-
+void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit);
 
 int main(void){
 
@@ -466,14 +458,13 @@ int main(void){
     //uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
     //uint8_t testing_array01[5] = {0};
 
-    DelayMS(500);
-    NRF_Write_8Bit_Register(CONFIG, PWR_UP, NRF24_ADD);
-    DelayMS(10);
-    NRF_Read_8Bit_Register(CONFIG,&testing_some);
-    DelayMS(10);
-    NRF_Write_8Bit_Register(CONFIG, PWR_UP, NRF24_REMOVE);
-    DelayMS(10);
-    NRF_Read_8Bit_Register(CONFIG,&testing_some);
+    DelayMS(400);
+    NRF_Read_40Bit_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
+    DelayMS(100);
+    NRF_Write_40Bit_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
+    DelayMS(100);
+    NRF_Read_40Bit_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
+    
 
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
@@ -483,58 +474,71 @@ int main(void){
     }
 }
 
-void NRF_Send_Command(uint8_t NRF_Command){
+void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit){
 
-    //while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
-    SPI_I2S_SendData(SPI1,NRF_Command);
-
-}
-
-uint8_t NRF_Read_Status(){
-
-    //while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-    uint8_t NRF_Status = 0;
-    NRF_Status = SPI_I2S_ReceiveData(SPI1);
-    return NRF_Status;
-
-}
-
-void NRF_Write_8Bit_Register(uint8_t NRF_Register, uint8_t Register_Data, Add_or_Remove NRF24_Task){
-
-    uint8_t buffer01 = 0;
-    uint8_t buffer02 = Register_Data;
-
-    if (NRF24_Task == NRF24_ADD){
-
-        NRF_Read_8Bit_Register(NRF_Register, &buffer01);
-        buffer01 = buffer01 | buffer02;
-    }
-    if(NRF24_Task == NRF24_REMOVE){
-        NRF_Read_8Bit_Register(NRF_Register, &buffer01);
-        buffer01 = buffer01 &~ buffer02;
-    }
-
-    DelayMS(1);
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
-    NRF_Send_Command(0x20 | NRF_Register);
-    (void)NRF_Read_Status();
+    SPI_I2S_SendData(SPI1, (0x20 | NRF24_Register));
+    (void)SPI_I2S_ReceiveData(SPI1);
 
-    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
-    SPI_I2S_SendData(SPI1,buffer01);
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1, NRF24_Register_Bit);
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
+}
 
+void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store){
+
+    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+
+    SPI_I2S_SendData(SPI1, NRF24_Register); //Sends Command to NRF24
+    (void)SPI_I2S_ReceiveData(SPI1);    //Reads_status
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE))); //sending null data for spi reading
+    SPI_I2S_SendData(SPI1, 0x00);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE))); //Gets Register data from NRF24
+    *Data_Store = SPI_I2S_ReceiveData(SPI1);
+
+    while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
+    GPIO_SetBits(GPIOA,GPIO_Pin_4);
+}
+
+//__attribute((optimize("O0")))
+void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit, uint8_t NRF24_Set_Reset){
+
+    uint8_t buffer_write = 0;
+    uint8_t buffer_read = 0;
+
+    NRF24_Read_8Bit_Register(NRF24_Register, &buffer_write);
+
+    if(NRF24_Set_Reset == 1){
+        buffer_write |= NRF24_Register_Bit;
+    }else{
+        buffer_write &=~ NRF24_Register_Bit;
+    }
+
+    DelayMS(10);
+
+    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+
+    SPI_I2S_SendData(SPI1, (0x20 | NRF24_Register));
+    (void)SPI_I2S_ReceiveData(SPI1);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1, buffer_write);
+
+    while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
+    GPIO_SetBits(GPIOA,GPIO_Pin_4);
 }
 
 void NRF_Write_40Bit_Register(uint8_t NRF_Register, uint8_t *Register_Data){
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
-    NRF_Send_Command(0x20 | NRF_Register);
-
-    (void)NRF_Read_Status();
+    SPI_I2S_SendData(SPI1, (0x20 | NRF_Register));
+    (void)SPI_I2S_ReceiveData(SPI1);
 
     for(int i = 4; i >= 0 ; i--){
         while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
@@ -543,40 +547,23 @@ void NRF_Write_40Bit_Register(uint8_t NRF_Register, uint8_t *Register_Data){
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
-
-}
-
-void NRF_Read_8Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data){
-
-    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
-
-    NRF_Send_Command(NRF_Register);
-
-    (void)NRF_Read_Status();
-
-    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
-    SPI_I2S_SendData(SPI1,0x00);
-
-    DelayMS(1);
-    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-    *Read_Register_Data = SPI1->DR;
-
-    while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
-    GPIO_SetBits(GPIOA,GPIO_Pin_4);
-
 }
 
 void NRF_Read_40Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data){
 
+    uint8_t buffer_read = 0;
+
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
-    NRF_Send_Command(NRF_Register);
-
-    (void)NRF_Read_Status();
+    SPI_I2S_SendData(SPI1, NRF_Register);
+    DelayMS(1);
+    buffer_read = SPI_I2S_ReceiveData(SPI1);
 
     for(int i = 4; i >= 0; i--){
         while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
         SPI_I2S_SendData(SPI1,0x00);
+
+        for (volatile int i = 0; i < 50; i++);
 
         while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
         Read_Register_Data[i] = SPI_I2S_ReceiveData(SPI1);
@@ -585,18 +572,6 @@ void NRF_Read_40Bit_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data){
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
 }
-
-void NRF_WriteSend_Payload(uint8_t *NRF_Payload, uint8_t len){
-
-    NRF_Send_Command(W_TX_PAYLOAD);
-
-    for(int i = 0 ; i <= (len - 1) ; i --){
-        while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
-        SPI_I2S_SendData(SPI1, NRF_Payload[i]);
-    }
-
-}
-
 
 //void USART2_IRQHandler(void){
 //    if(USART_GetITStatus(USART2,USART_IT_RXNE)){
@@ -719,12 +694,12 @@ void SPI_SETUP(void){
 
     SPI_InitTypeDef SPI_InitStruct_1;
     SPI_InitStruct_1.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-    SPI_InitStruct_1.SPI_Mode = 0x04;
+    SPI_InitStruct_1.SPI_Mode = SPI_Mode_Master;
     SPI_InitStruct_1.SPI_DataSize = SPI_DataSize_8b;
     SPI_InitStruct_1.SPI_CPOL = SPI_CPOL_Low;
     SPI_InitStruct_1.SPI_CPHA = SPI_CPHA_1Edge;
-    SPI_InitStruct_1.SPI_NSS = SPI_NSS_Hard;
-    SPI_InitStruct_1.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
+    SPI_InitStruct_1.SPI_NSS = SPI_NSS_Soft;
+    SPI_InitStruct_1.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
     SPI_InitStruct_1.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_InitStruct_1.SPI_CRCPolynomial = 7;
 
