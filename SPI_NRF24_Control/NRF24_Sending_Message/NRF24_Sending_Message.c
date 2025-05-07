@@ -412,15 +412,14 @@ int main(void){
     //uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
     //uint8_t testing_array01[5] = {0};
 
-    SysTick_Delay_mS(400);
     NRF24_40Bit_Write_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
     NRF24_40Bit_Read_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
 
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
-        SysTick_Delay_mS(200);
+        SysTick_Delay_mS(2000);
         GPIO_SetBits(GPIOC,GPIO_Pin_13);
-        SysTick_Delay_mS(200);
+        SysTick_Delay_mS(2000);
     }
 }
 
@@ -606,9 +605,8 @@ void NRF_Payload_Write(uint8_t *NRF_Payload){
 
 
 void SysTick_SETUP(void){
-    SysTick->LOAD = 72;
+    SysTick->LOAD = 9;
     SysTick->VAL = 0;
-    SysTick->CTRL |= SysTick_CTRL_CLKSOURCE;
 }
 
 void SysTick_Delay_uS (uint16_t ntime){
@@ -616,7 +614,7 @@ void SysTick_Delay_uS (uint16_t ntime){
     SysTick->VAL = 0;
     SysTick->CTRL |= SysTick_CTRL_ENABLE;
 
-    for(int i = (ntime * 1) ; i > 0 ; i--){
+    for(int i = ntime - 1 ; i > 0 ; i--){
         while(!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG));
     }
 
@@ -628,7 +626,7 @@ void SysTick_Delay_mS (uint16_t ntime){
     SysTick->VAL = 0;
     SysTick->CTRL |= SysTick_CTRL_ENABLE;
 
-    for(int i = (ntime * 10000) ; i > 0 ; i--){
+    for(int i = (ntime * 1000) - 1 ; i > 0 ; i--){
         while(!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG));
     }
 
