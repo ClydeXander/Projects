@@ -1,9 +1,11 @@
+//#define STM32F10X_MD
 #include "stm32f10x.h"
 #include "stm32f10x_rcc.h"
 #include "stm32f10x_gpio.h"
 #include "stm32f10x_exti.h"
 #include "stm32f10x_usart.h"
 #include "stm32f10x_spi.h"
+#include "stm32f10x_dma.h"
 
 /*Command Registers*/
 #define R_REGISTER            ((uint8_t)0x00)
@@ -384,6 +386,9 @@ void GPIO_SETUP(void);
 void SPI_SETUP(void);
 void USART_SETUP(void);
 void SysTick_SETUP(void);
+void DMA_SETUP(void);
+
+
 void SysTick_Delay_uS(uint16_t ntime);
 void SysTick_Delay_mS (uint16_t ntime);
 
@@ -406,14 +411,19 @@ int main(void){
     //EXTI_SETUP();
     SPI_SETUP();
     USART_SETUP();
+    DMA_Setup();
     SysTick_SETUP();
 
-    uint8_t testing_some = 0;
+    //uint8_t testing_some = 0;
     //uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
-    //uint8_t testing_array01[5] = {0};
+    uint8_t testing_array01[5] = {0};
 
+    SysTick_Delay_mS(4000);
     NRF24_40Bit_Write_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
-    NRF24_40Bit_Read_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
+    NRF24_40Bit_Read_Register(RX_ADDR_P0, testing_array01);
+    NRF24_40Bit_Write_Register(RX_ADDR_P0, testing_array01);
+    NRF24_40Bit_Read_Register(RX_ADDR_P0, testing_array01);
+    NRF24_40Bit_Write_Register(RX_ADDR_P0, testing_array01);
 
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
@@ -596,6 +606,18 @@ void NRF_Payload_Write(uint8_t *NRF_Payload){
 //    }
 //}
 
+
+void SPI1_IRQHandler(void){
+
+    uint8_t SPI_ITFlag_Read = 0;
+
+    SPI_ITFlag_Read = SPI_I2S_ReceiveData(SPI1);
+    if(SPI1->SR & SPI_SR_OVR){
+        USART_SendData(USART2, 0x66);
+    }
+
+}
+
 //void EXTI0_IRQHandler(void){
 //    GPIO_ResetBits(GPIOC,GPIO_Pin_13);
 //}
@@ -737,9 +759,25 @@ void SPI_SETUP(void){
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1,ENABLE);
     SPI_Init(SPI1,&SPI_InitStruct_1);
+    SPI_I2S_ITConfig(SPI1, SPI_I2S_IT_ERR, ENABLE);
+    NVIC_EnableIRQ(SPI1_IRQn);
+    SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, ENABLE);
     SPI_SSOutputCmd(SPI1,ENABLE);
     SPI_Cmd(SPI1,ENABLE);
 
+}
+
+void DMA_SETUP(void){
+    
+    DMA_InitTypeDef DMA_InitStruct_Spi1;
+    DMA_InitStruct_Spi1.DMA_PeripheralBaseAddr = (uint32_t)&SPI1->DR;
+    DMA_InitStruct_Spi1.DMA_DIR = DMA_DIR_PeripheralSRC;
+    DMA_InitStruct_Spi1.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    DMA_InitStruct_Spi1.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMA_InitStruct_Spi1.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStruct_Spi1.DMA_Mode = DMA_Mode_Normal;
+    DMA_InitStruct_Spi1.DMA_Priority = DMA_Priority_High;
+    
 }
 
 void USART_SETUP(void){
