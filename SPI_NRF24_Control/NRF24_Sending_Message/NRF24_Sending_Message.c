@@ -421,25 +421,35 @@ int main(void){
     SysTick_Delay_mS(4000);
     NRF_Testing_Write_Function(CONFIG, 0x08);
     SysTick_Delay_uS(30);
-    NRF_Testing_Write_Function(NOP, 0x00);
-    SysTick_Delay_uS(30);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
     NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF_Testing_Write_Function(NOP, 0x00);
-    SysTick_Delay_uS(30);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
     NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF_Testing_Write_Function(NOP, 0x00);
-    SysTick_Delay_uS(30);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
     NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    //NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    //NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    //NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-
-    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
         SysTick_Delay_mS(2000);
@@ -558,6 +568,8 @@ void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bi
 
 void NRF24_40Bit_Write_Register(uint8_t NRF_Register, uint8_t *Register_Data){
 
+    uint8_t buffer_read[5] = {0};
+
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
     SPI_I2S_SendData(SPI1, (0x20 | NRF_Register));
@@ -566,6 +578,9 @@ void NRF24_40Bit_Write_Register(uint8_t NRF_Register, uint8_t *Register_Data){
     for(int i = 4; i >= 0 ; i--){
         while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
         SPI_I2S_SendData(SPI1,Register_Data[i]);
+
+        while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
+        buffer_read[i] = SPI_I2S_ReceiveData(SPI1);
     }
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
