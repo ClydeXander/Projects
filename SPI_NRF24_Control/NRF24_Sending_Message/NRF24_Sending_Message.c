@@ -411,19 +411,34 @@ int main(void){
     //EXTI_SETUP();
     SPI_SETUP();
     USART_SETUP();
-    DMA_Setup();
+    DMA_SETUP();
     SysTick_SETUP();
 
-    //uint8_t testing_some = 0;
+    uint8_t testing_some = 0;
     //uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
-    uint8_t testing_array01[5] = {0};
+    //uint8_t testing_array01[5] = {0};
 
     SysTick_Delay_mS(4000);
-    NRF24_40Bit_Write_Register(RX_ADDR_P0, RX_ADDR_0_DataPipe_Value);
-    NRF24_40Bit_Read_Register(RX_ADDR_P0, testing_array01);
-    NRF24_40Bit_Write_Register(RX_ADDR_P0, testing_array01);
-    NRF24_40Bit_Read_Register(RX_ADDR_P0, testing_array01);
-    NRF24_40Bit_Write_Register(RX_ADDR_P0, testing_array01);
+    NRF_Testing_Write_Function(CONFIG, 0x08);
+    SysTick_Delay_uS(30);
+    NRF_Testing_Write_Function(NOP, 0x00);
+    SysTick_Delay_uS(30);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    NRF_Testing_Write_Function(NOP, 0x00);
+    SysTick_Delay_uS(30);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF_Testing_Write_Function(NOP, 0x00);
+    SysTick_Delay_uS(30);
+    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    //NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    //NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
+    //NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+
+    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
+    //NRF24_Read_8Bit_Register(CONFIG, &testing_some);
 
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
@@ -448,6 +463,8 @@ void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_B
     while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1, NRF24_Register_Bit);
 
+    (void)SPI_I2S_ReceiveData(SPI1);
+
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
 }
@@ -460,20 +477,39 @@ void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_B
 
 void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store){
 
-    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+    uint8_t buffer_read = 0;
 
-    SPI_I2S_SendData(SPI1, NRF24_Register); //Sends Command to NRF24
-    SysTick_Delay_uS(20);
-    (void)SPI_I2S_ReceiveData(SPI1);    //Reads_status
+    DMA1_Channel2->CMAR = (uint32_t)&buffer_read;
+    DMA1_Channel2->CNDTR = 1;
+    DMA_Cmd(DMA1_Channel2,ENABLE);
+
+    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+    
+    SPI_I2S_SendData(SPI1, NRF24_Register);
+    
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
+    while (!(DMA_GetFlagStatus(DMA1_FLAG_TC2)));
+    DMA_ClearFlag(DMA1_FLAG_TC2);
+
+    while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
+    DMA_Cmd(DMA1_Channel2, DISABLE);
+
+    DMA1_Channel2->CMAR = (uint32_t)Data_Store;
+    DMA1_Channel2->CNDTR = 1;
+    DMA_Cmd(DMA1_Channel2,ENABLE);
 
     while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE))); //sending null data for spi reading
     SPI_I2S_SendData(SPI1, 0x00);
 
-    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE))); //Gets Register data from NRF24
-    *Data_Store = SPI_I2S_ReceiveData(SPI1);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
+    while (!(DMA_GetFlagStatus(DMA1_FLAG_TC2)));
+    DMA_ClearFlag(DMA1_FLAG_TC2);
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
+
+    DMA_Cmd(DMA1_Channel2, DISABLE);
 
     SysTick_Delay_uS(20);
 }
@@ -485,7 +521,7 @@ void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store){
 
 void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit, uint8_t NRF24_Set_Reset){
 
-    uint8_t buffer_write = 0;
+    uint8_t buffer_write = 0xFF;
     uint8_t buffer_read = 0;
 
     NRF24_Read_8Bit_Register(NRF24_Register, &buffer_write);
@@ -501,10 +537,13 @@ void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bi
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
     SPI_I2S_SendData(SPI1, (0x20 | NRF24_Register));
-    (void)SPI_I2S_ReceiveData(SPI1);
+    buffer_read = SPI_I2S_ReceiveData(SPI1);
 
     while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1, buffer_write);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
+    buffer_read = SPI_I2S_ReceiveData(SPI1);
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
@@ -761,22 +800,26 @@ void SPI_SETUP(void){
     SPI_Init(SPI1,&SPI_InitStruct_1);
     SPI_I2S_ITConfig(SPI1, SPI_I2S_IT_ERR, ENABLE);
     NVIC_EnableIRQ(SPI1_IRQn);
-    SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx | SPI_I2S_DMAReq_Tx, ENABLE);
+    SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
     SPI_SSOutputCmd(SPI1,ENABLE);
     SPI_Cmd(SPI1,ENABLE);
 
 }
 
 void DMA_SETUP(void){
+
+    RCC_AHBPeriphClockCmd(RCC_AHBENR_DMA1EN,ENABLE);
     
-    DMA_InitTypeDef DMA_InitStruct_Spi1;
-    DMA_InitStruct_Spi1.DMA_PeripheralBaseAddr = (uint32_t)&SPI1->DR;
-    DMA_InitStruct_Spi1.DMA_DIR = DMA_DIR_PeripheralSRC;
-    DMA_InitStruct_Spi1.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStruct_Spi1.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStruct_Spi1.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    DMA_InitStruct_Spi1.DMA_Mode = DMA_Mode_Normal;
-    DMA_InitStruct_Spi1.DMA_Priority = DMA_Priority_High;
+    DMA_InitTypeDef DMA_InitStruct_Spi1_Rx;
+    DMA_StructInit(&DMA_InitStruct_Spi1_Rx);
+    DMA_InitStruct_Spi1_Rx.DMA_PeripheralBaseAddr = (uint32_t)&SPI1->DR;
+    DMA_InitStruct_Spi1_Rx.DMA_DIR = DMA_DIR_PeripheralSRC;
+    DMA_InitStruct_Spi1_Rx.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    DMA_InitStruct_Spi1_Rx.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMA_InitStruct_Spi1_Rx.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStruct_Spi1_Rx.DMA_Mode = DMA_Mode_Normal;
+    DMA_InitStruct_Spi1_Rx.DMA_Priority = DMA_Priority_High;
+    DMA_Init(DMA1_Channel2,&DMA_InitStruct_Spi1_Rx);
     
 }
 

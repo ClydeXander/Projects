@@ -7,6 +7,7 @@ SRCFL += stm32f10x_gpio.c
 SRCFL += stm32f10x_usart.c
 SRCFL += stm32f10x_spi.c
 SRCFL += stm32f10x_exti.c
+SRCFL += stm32f10x_dma.c
 
 #Build Directory
 BUILD_DIR = build
