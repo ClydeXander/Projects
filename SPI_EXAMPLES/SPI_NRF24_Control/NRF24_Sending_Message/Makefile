@@ -31,7 +31,7 @@ CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
 
 #Complier flags.
-CFLAGS = -mcpu=cortex-m3 -mthumb -T ~/MCU_Related/Test_STM32/STM32F103C8TX_FLASH.ld -mthumb-interwork -mfloat-abi=softfp
+CFLAGS = -mcpu=cortex-m3 -mthumb -T ~/MCU_Related/Test_STM32/STM32F103XB_FLASH.ld -mthumb-interwork -mfloat-abi=softfp
 CFLAGS += --specs=nosys.specs -g3 -std=c99 -O2
 CFLAGS += -I $(STM_COMMON)/../Project/STM32F10x_StdPeriph_Template
 CFLAGS += -I $(STM_COMMON_CMSIS)/DeviceSupport/ST/STM32F10x
