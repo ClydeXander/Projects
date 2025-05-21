@@ -7,20 +7,24 @@ SRCFL += stm32f10x_gpio.c
 SRCFL += stm32f10x_usart.c
 SRCFL += stm32f10x_spi.c
 SRCFL += stm32f10x_exti.c
-SRCFL += stm32f10x_dma.c
+#SRCFL += stm32f10x_dma.c
 
 #Build Directory
 BUILD_DIR = build
 ELF_DIR = $(BUILD_DIR)/elf
 HEX_DIR = $(BUILD_DIR)/hex
 BIN_DIR = $(BUILD_DIR)/bin
+OBJ_DIR = $(BUILD_DIR)/obj
 ASSEMBLY_DIR = $(BUILD_DIR)/assembly
+DISASSEMBLY_DIR = $(BUILD_DIR)/disassembly
 
 #Build  Files
 ELF_FILE = $(ELF_DIR)/$(PROJ_NAME).elf
 HEX_FILE = $(HEX_DIR)/$(PROJ_NAME).hex
 BIN_FILE = $(BIN_DIR)/$(PROJ_NAME).bin
+OBJ_FILE = $(OBJ_DIR)/$(PROJ_NAME).o
 ASSEMBLY_FILE = $(ASSEMBLY_DIR)/$(PROJ_NAME).s
+DISASSEMBLY_FILE = $(DISASSEMBLY_DIR)/$(PROJ_NAME).lst
 
 #Put your STM32 library code directory here
 STM_COMMON = /home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries
@@ -29,6 +33,7 @@ STM_COMMON_CMSIS = /home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x
 #Complier settings. Only edit CFLAGS to include other header files.
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
 
 #Complier flags.
 CFLAGS = -mcpu=cortex-m3 -mthumb -T ~/MCU_Related/Test_STM32/STM32F103XB_FLASH.ld -mthumb-interwork -mfloat-abi=softfp
@@ -49,12 +54,12 @@ vpath %.c $(STM_COMMON)/STM32F10x_StdPeriph_Driver/src
 
 .PHONY: proj
 
-$(BUILD_DIR) $(ELF_DIR) $(HEX_DIR) $(BIN_DIR) $(ASSEMBLY_DIR):
+$(BUILD_DIR) $(ELF_DIR) $(HEX_DIR) $(BIN_DIR) $(OBJ_DIR) $(ASSEMBLY_DIR) $(DISASSEMBLY_DIR):
 	@mkdir -p $@
 
 all: proj
 
-proj: $(ELF_FILE) $(HEX_FILE) $(BIN_FILE) $(ASSEMBLY_FILE)
+proj: $(ELF_FILE) $(HEX_FILE) $(BIN_FILE) $(OBJ_FILE) $(ASSEMBLY_FILE) $(DISASSEMBLY_FILE)
 
 # Generate .elf file in ELF_DIR
 $(ELF_FILE): $(SRCFL) | $(ELF_DIR)
@@ -68,8 +73,14 @@ $(HEX_FILE): $(ELF_FILE) | $(HEX_DIR)
 $(BIN_FILE): $(ELF_FILE) | $(BIN_DIR)
 	$(OBJCOPY) -O binary $< $@
 
+$(OBJ_FILE): $(PROJ_NAME).c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $^ -o $@
+
 $(ASSEMBLY_FILE): $(PROJ_NAME).c | $(ASSEMBLY_DIR)
 	$(CC) $(CFLAGS) -S $^ -o $@
+
+$(DISASSEMBLY_FILE): $(OBJ_FILE) | $(DISASSEMBLY_DIR)
+	$(OBJDUMP) -D $^ > $@
 
 clean:
 	rm -rf $(BUILD_DIR)

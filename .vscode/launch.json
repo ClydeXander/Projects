@@ -6,7 +6,7 @@
     "configurations": [
         {
             "cwd": "${workspaceRoot}",
-            "executable": "./SPI_NRF24_Control/NRF24_Sending_Message/build/elf/NRF24_Sending_Message.elf",
+            "executable": "./SPI_EXAMPLES/SPI_NRF24_Control/NRF24_Sending_Message/build/elf/NRF24_Sending_Message.elf",
             "name": "Debug with OpenOCD",
             "request": "launch",
             "type": "cortex-debug",

@@ -23,7 +23,7 @@
 #define W_ACK_PAYLOAD_4       ((uint8_t)0x9C)
 #define W_ACK_PAYLOAD_5       ((uint8_t)0x9D)
 #define W_TX_PAYLOAD_NO_ACK   ((uint8_t)0xB0)
-#define NOP                   ((uint8_t)0xFF)   
+#define NRF24_NOP                   ((uint8_t)0xFF)   
 
 /*NRF_Register Addresses*/
 #define CONFIG         ((uint8_t)0x00)
@@ -363,11 +363,11 @@
 #define EN_DYN_ACK       ((uint8_t)0x01U)
 
 volatile uint32_t ntime = 0;
-volatile uint32_t TimerDelay = 0;
 
-/*******************************
-********RX_Data_Pipes***********
-********************************/
+
+/*============================================================================
+============================RX_DATA_PIPES======================================
+============================================================================*/
 
 static uint8_t RX_ADDR_0_DataPipe_Value[5] = {0xE7U,0xE7U,0xE7U,0xE7U,0xE7U};
 //static uint8_t RX_ADDR_1_DataPipe_Value[5] = {0xC2U,0xC2U,0xC2U,0xC2U,0xC2U};
@@ -391,13 +391,13 @@ void SysTick_SETUP(void);
 void SysTick_Delay_uS(uint16_t ntime);
 void SysTick_Delay_mS (uint16_t ntime);
 
+void NRF24_Reading_Status_Register(uint8_t *NRF_Status);
 void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit);
-void NRF24_Read_Status(uint8_t *Data_Store);
 void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit, uint8_t NRF24_Set_Reset);
 void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store);
 void NRF24_40Bit_Write_Register(uint8_t NRF_Register, uint8_t *Register_Data);
 void NRF24_40Bit_Read_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data);
-void NRF_Payload_Write(uint8_t *NRF_Payload);
+void NRF_Payload_Write(uint8_t *NRF_Payload, uint8_t len);
 
 
 
@@ -406,6 +406,10 @@ void NRF_Payload_Write(uint8_t *NRF_Payload);
 
 int main(void){
 
+    __disable_irq();
+    NVIC_EnableIRQ(EXTI0_IRQn);
+    __enable_irq();
+
     GPIO_SETUP();
     //EXTI_SETUP();
     SPI_SETUP();
@@ -413,40 +417,12 @@ int main(void){
     SysTick_SETUP();
 
     uint8_t testing_some = 0;
-    //uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
+    uint8_t testing_array[5] = {0xAA, 0xBB,0xCC, 0xDD, 0xEE};
     //uint8_t testing_array01[5] = {0};
 
     SysTick_Delay_mS(4000);
-    NRF_Testing_Write_Function(CONFIG, 0x08);
-    SysTick_Delay_uS(30);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 1);
-    NRF24_Read_8Bit_Register(CONFIG, &testing_some);
-    NRF24_Write_8Bit_Register(CONFIG, 0x02, 0);
+    NRF24_Write_8Bit_Register(FEATURE, EN_DPL | EN_ACK_PAY , 1);
+    NRF24_Write_8Bit_Register(FEATURE, EN_DYN_ACK, 0);
     
     while(1){
         GPIO_ResetBits(GPIOC,GPIO_Pin_13);
@@ -457,21 +433,18 @@ int main(void){
 }
 
 
+/*===========================================================================
+============================NRF24 FUNCTIONS==================================
+=============================================================================*/
 
-
-
-
-void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit){
+void NRF24_Reading_Status_Register(uint8_t *NRF_Status){
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
-    SPI_I2S_SendData(SPI1, (0x20 | NRF24_Register));
-    (void)SPI_I2S_ReceiveData(SPI1);
-
     while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
-    SPI_I2S_SendData(SPI1, NRF24_Register_Bit);
-
-    (void)SPI_I2S_ReceiveData(SPI1);
+    SPI_I2S_SendData(SPI1, NRF24_NOP);
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
+    *NRF_Status = SPI_I2S_ReceiveData(SPI1);
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
@@ -480,12 +453,35 @@ void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_B
 
 
 
+void NRF_Testing_Write_Function(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit){
+
+    GPIO_ResetBits(GPIOA,GPIO_Pin_4);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1, (0x20 | NRF24_Register));
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
+    (void)SPI_I2S_ReceiveData(SPI1);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
+    SPI_I2S_SendData(SPI1, NRF24_Register_Bit);
+
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
+    (void)SPI_I2S_ReceiveData(SPI1);
+
+    while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
+    GPIO_SetBits(GPIOA,GPIO_Pin_4);
+
+    SysTick_Delay_uS(20);
+}
+
+
+
 
 
 
 void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store){
 
-    uint8_t buffer_read = 0;
+    volatile uint8_t buffer_read = 0;
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
     
@@ -515,8 +511,8 @@ void NRF24_Read_8Bit_Register(uint8_t NRF24_Register, uint8_t *Data_Store){
 
 void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bit, uint8_t NRF24_Set_Reset){
 
-    uint8_t buffer_write = 0xFF;
-    uint8_t buffer_read = 0;
+    uint8_t buffer_write = 0;
+    uint8_t volatile buffer_read = 0;
 
     NRF24_Read_8Bit_Register(NRF24_Register, &buffer_write);
 
@@ -530,7 +526,10 @@ void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bi
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1, (0x20 | NRF24_Register));
+    buffer_read = SPI_I2S_ReceiveData(SPI1);
+    while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)));
     buffer_read = SPI_I2S_ReceiveData(SPI1);
 
     while(!(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)));
@@ -552,25 +551,25 @@ void NRF24_Write_8Bit_Register(uint8_t NRF24_Register, uint8_t NRF24_Register_Bi
 
 void NRF24_40Bit_Write_Register(uint8_t NRF_Register, uint8_t *Register_Data){
 
-    uint8_t buffer_read[5] = {0};
-
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1, (0x20 | NRF_Register));
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
     (void)SPI_I2S_ReceiveData(SPI1);
 
-    for(int i = 4; i >= 0 ; i--){
+    for(uint8_t i = 5; i >= 1 ; i--){
         while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
-        SPI_I2S_SendData(SPI1,Register_Data[i]);
+        SPI_I2S_SendData(SPI1,Register_Data[i - 1]);
 
         while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-        buffer_read[i] = SPI_I2S_ReceiveData(SPI1);
+        (void)SPI_I2S_ReceiveData(SPI1);
     }
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
 
-    SysTick_Delay_uS(50);
+    SysTick_Delay_uS(20);
 }
 
 
@@ -584,22 +583,23 @@ void NRF24_40Bit_Read_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1, NRF_Register);
-    SysTick_Delay_uS(8);
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
     buffer_read = SPI_I2S_ReceiveData(SPI1);
 
-    for(int i = 4; i >= 0; i--){
+    for(uint8_t i = 5; i >= 1 ; i--){
         while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
         SPI_I2S_SendData(SPI1,0x00);
 
         while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
-        Read_Register_Data[i] = SPI_I2S_ReceiveData(SPI1);
+        Read_Register_Data[i - 1] = SPI_I2S_ReceiveData(SPI1);
     }
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
 
-    SysTick_Delay_uS(50);
+    SysTick_Delay_uS(20);
 }
 
 
@@ -608,49 +608,49 @@ void NRF24_40Bit_Read_Register(uint8_t NRF_Register, uint8_t *Read_Register_Data
 
 
 
-void NRF_Payload_Write(uint8_t *NRF_Payload){
+void NRF_Payload_Write(uint8_t *NRF_Payload, uint8_t len){
 
     GPIO_ResetBits(GPIOA,GPIO_Pin_4);
 
+    while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
     SPI_I2S_SendData(SPI1, W_TX_PAYLOAD_NO_ACK);
-    SysTick_Delay_uS(10);
+    while(!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
     (void)SPI_I2S_ReceiveData(SPI1);
+
+    for (uint8_t i = len ; i >= 1; i--){
+
+        while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_TXE)));
+        SPI_I2S_SendData(SPI1, NRF_Payload[i -1]);
+
+        while (!(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_RXNE)));
+        (void)SPI_I2S_ReceiveData(SPI1);
+    }
 
     while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
 
+    SysTick_Delay_uS(20);
+
+}
+
+
+/*==================================================================
+=======================INTERRUPT FUNCTIONS==========================
+====================================================================*/
+
+void EXTI0_IRQHandler(void){
+    uint8_t buffer_read = 0;
+    
+    NRF24_Reading_Status_Register(&buffer_read);
+
+
 }
 
 
 
-
-
-//void USART2_IRQHandler(void){
-//    if(USART_GetITStatus(USART2,USART_IT_RXNE)){
-//
-//        while(!(USART_GetFlagStatus(USART2,USART_FLAG_RXNE)));
-//        buffer = USART_ReceiveData(USART2);
-//
-//        GPIO_ResetBits(GPIOA,GPIO_Pin_4);
-//
-//        NRF24_Command_Status(buffer);
-//        data_spi = NRF24_Send_Dummy_Read_Register(8);
-//
-//        while(SPI_I2S_GetFlagStatus(SPI1,SPI_I2S_FLAG_BSY));
-//        GPIO_SetBits(GPIOA,GPIO_Pin_4);
-//
-//        while(!(USART_GetFlagStatus(USART2,USART_FLAG_TXE)));
-//        USART_SendData(USART2,data_spi);
-//    }
-//}
-
-//void EXTI0_IRQHandler(void){
-//    GPIO_ResetBits(GPIOC,GPIO_Pin_13);
-//}
-
-
-
-
+/*==================================================================
+==========================DELAY FUNCTIONS===========================
+====================================================================*/
 
 void SysTick_SETUP(void){
     SysTick->LOAD = 9;
@@ -683,7 +683,9 @@ void SysTick_Delay_mS (uint16_t ntime){
 
 
 
-
+/*==================================================================
+==========================SETUP FUNCTIONS===========================
+====================================================================*/
 
 void GPIO_SETUP(void){
 
@@ -727,6 +729,11 @@ void GPIO_SETUP(void){
     GPIO_InitStruct_B0.GPIO_Speed = 0;
     GPIO_InitStruct_B0.GPIO_Mode = GPIO_Mode_IPD;
 
+    GPIO_InitTypeDef GPIO_InitStruct_B1;
+    GPIO_InitStruct_B0.GPIO_Pin  = GPIO_Pin_1;
+    GPIO_InitStruct_B0.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct_B0.GPIO_Mode = GPIO_Mode_IPD;
+
     GPIO_InitTypeDef GPIO_InitStruct_C13;
     GPIO_InitStruct_C13.GPIO_Pin  = GPIO_Pin_13;
     GPIO_InitStruct_C13.GPIO_Speed = GPIO_Speed_2MHz;
@@ -745,30 +752,29 @@ void GPIO_SETUP(void){
     GPIO_Init(GPIOA,&GPIO_InitStruct_A6);
     GPIO_Init(GPIOA,&GPIO_InitStruct_A7);
     GPIO_Init(GPIOB,&GPIO_InitStruct_B0);
+    GPIO_Init(GPIOB,&GPIO_InitStruct_B1);
     GPIO_Init(GPIOC,&GPIO_InitStruct_C13);
 
-    //GPIO_EXTILineConfig(GPIO_PortSourceGPIOB,GPIO_PinSource0);
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOB,GPIO_PinSource0);
 
     GPIO_SetBits(GPIOA,GPIO_Pin_1);
     GPIO_SetBits(GPIOA,GPIO_Pin_4);
+    GPIO_SetBits(GPIOB,GPIO_Pin_1);
     GPIO_SetBits(GPIOC,GPIO_Pin_13);
 
 }
 
-//void EXTI_SETUP(void){
-//
-//    EXTI_InitTypeDef EXTI_InitStruct_B0;
-//    EXTI_InitStruct_B0.EXTI_Line = EXTI_Line0;
-//    EXTI_InitStruct_B0.EXTI_Mode = EXTI_Mode_Interrupt;
-//    EXTI_InitStruct_B0.EXTI_Trigger = EXTI_Trigger_Rising;
-//    EXTI_InitStruct_B0.EXTI_LineCmd = ENABLE;
-//    
-//    EXTI_Init(&EXTI_InitStruct_B0);
-//    __disable_irq();
-//    NVIC_EnableIRQ(EXTI0_IRQn);
-//    __enable_irq();
-//
-//}
+void EXTI_SETUP(void){
+
+    EXTI_InitTypeDef EXTI_InitStruct_B0;
+    EXTI_InitStruct_B0.EXTI_Line = EXTI_Line0;
+    EXTI_InitStruct_B0.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStruct_B0.EXTI_Trigger = EXTI_Trigger_Rising;
+    EXTI_InitStruct_B0.EXTI_LineCmd = ENABLE;
+    
+    EXTI_Init(&EXTI_InitStruct_B0);
+
+}
 
 void SPI_SETUP(void){
 
