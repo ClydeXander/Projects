@@ -4,12 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x",
-                "/home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/CMSIS/CM3/CoreSupport",
-                "/home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/STM32F10x_StdPeriph_Driver/inc",
-                "/home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/STM32F10x_StdPeriph_Driver/src",
-                "/home/orhanveli/MCU_Related/Manufacturers/Stm32_Dev/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x",
-                "${workspaceFolder}/UART_Sending_Massage"
+                "/home/noneyourbusiness/mcu_related/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x",
+                "/home/noneyourbusiness/mcu_related/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/CMSIS/CM3/CoreSupport",
+                "/home/noneyourbusiness/mcu_related/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/STM32F10x_StdPeriph_Driver/inc",
+                "/home/noneyourbusiness/mcu_related/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/STM32F10x_StdPeriph_Driver/src",
+                "/home/noneyourbusiness/mcu_related/STM32F10x_StdPeriph_Lib_V3.6.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x",
+                "${workspaceFolder}"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

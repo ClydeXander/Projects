@@ -11,6 +11,6 @@
         "stm32f10x_dma.h": "c"
     },
     "cortex-debug.openocdPath": "/usr/bin/openocd",
-    "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch",
+    "cortex-debug.gdbPath": "/home/noneyourbusiness/mcu_related/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gdb",
     "cortex-debug.variableUseNaturalFormat": false
 }

@@ -6,7 +6,7 @@
     "configurations": [
         {
             "cwd": "${workspaceRoot}",
-            "executable": "./Custom_RTOS/build/elf/Custom_RTOS.elf",
+            "executable": "./Context_Switch/build/elf/Context_Switch.elf",
             "name": "Debug with OpenOCD",
             "request": "launch",
             "type": "cortex-debug",
