@@ -60,6 +60,12 @@ int main(void){
     PSP_Array[1]=sp_Blink_2;
     pPSP_Array = &PSP_Array[0];
 
+    tmp = __get_MSP();
+    __set_PSP(tmp);
+
+    __set_CONTROL(0x3);
+    __ISB();
+
     Blink_1();
 
     while(1){
@@ -116,20 +122,20 @@ void PendSV_Handler(void){
                     "STR R1, [R2]              \n\t" // set next_task = curr_task (we are toggling)
                     "LDR R1, [R0, R3, LSL #2]  \n\t" // Load PSP value from PSP_array (&stack_Blink_2)
                     "LDMIA R1!, {R4-R11}       \n\t" // Load R4 to R11 from stack
-                    "MSR MSP, R1               \n\t" // Set PSP to next task
+                    "MSR PSP, R1               \n\t" // Set PSP to next task
                     "ISB                       \n\t"
-                    : // Output Operands
-                    : [curr_Task] "m" (curr_Task),
-                      [pPSP_Array] "m" (pPSP_Array),
-                      [next_task] "m" (next_Task),
-                      [pCurr_Task] "m" (pCurr_Task),
-                      [pNext_Task] "m" (pNext_Task) // Input Operands
-                    :"memory","r0","r1","r2","r3","r12","r14"
+                    : [curr_Task] "+m" (curr_Task),
+                      [pPSP_Array] "+m" (pPSP_Array),
+                      [next_task] "+m" (next_Task),
+                      [pCurr_Task] "+m" (pCurr_Task),
+                      [pNext_Task] "+m" (pNext_Task)// Output Operands
+                    :  // Input Operands
+                    :"memory","r0","r1","r2","r3"
                 );
     uint8_t sumvar = 15;
     __ASM volatile (
                     "CPSIE I      \n\t" //__enable_irq()
-                    "BX LR         \n\t" // Return
+                    "BX R14         \n\t" // Return
     );
 }
 
@@ -152,19 +158,19 @@ void Delay(uint32_t nTime){
 
 void Blink_1(void){   
     while(1){
-        //GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_RESET);
-        //Delay(10);
-        //GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_SET);
-        //Delay(10);
+        GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_RESET);
+        Delay(10);
+        GPIO_WriteBit(GPIOB,GPIO_Pin_1,Bit_SET);
+        Delay(10);
     }
 }
 
 void Blink_2(void){  
     while(1){
-        //GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_RESET);
-        //Delay(10);
-        //GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_SET);
-        //Delay(10);
+        GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_RESET);
+        Delay(10);
+        GPIO_WriteBit(GPIOB,GPIO_Pin_0,Bit_SET);
+        Delay(10);
     }
 }
 
